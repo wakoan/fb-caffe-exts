@@ -97,7 +97,7 @@ def inner_product(torch_layer):
 def concat(torch_layer):
     layer = pb2.LayerParameter()
     layer.type = "Concat"
-    layer.concat_param.axis = int(torch_layer["axis"])
+    layer.concat_param.axis = int(torch_layer["axis"] - 1)
     log.info("Concat on axis %s", layer.concat_param.axis)
     return layer
 
@@ -129,9 +129,9 @@ def spatial_convolution(torch_layer):
     assert len(weight.shape) == 4, weight.shape
     (nOutputPlane, nInputPlane, kH_, kW_) = weight.shape
 
-    (kW, kH, dW, dH, padW, padH) = [
+    (kW, kH, dW, dH, padW, padH, dilation) = [
         int(torch_layer.get(f, 0))
-        for f in ["kW", "kH", "dW", "dH", "padW", "padH"]]
+        for f in ["kW", "kH", "dW", "dH", "padW", "padH", "dilationW"]]
     assert kH_ == kH
     assert kW_ == kW
     layer.convolution_param.num_output = nOutputPlane
@@ -141,6 +141,8 @@ def spatial_convolution(torch_layer):
     layer.convolution_param.kernel_h = kH
     layer.convolution_param.stride_h = dH
     layer.convolution_param.pad_h = padH
+    layer.convolution_param.dilation.append(dilation if dilation else 1)
+
     if "bias" in torch_layer:
         bias = torch_layer["bias"]
         layer.blobs.extend([as_blob(weight), as_blob(bias)])
@@ -299,7 +301,7 @@ def batchnorm(torch_layer):
     layer = pb2.LayerParameter()
     layer.type = "BatchNorm"
     # Caffe BN doesn't support bias
-    assert torch_layer["affine"]==0
+    # assert torch_layer["affine"]==0
     layer.batch_norm_param.use_global_stats = 1
     blobs_weight = np.ones(1)
     layer.blobs.extend([as_blob(torch_layer["running_mean"]), 
@@ -316,6 +318,7 @@ def build_converter(opts):
         'caffe.Log': ty('Log'),
         'caffe.LogSoftmax': ty('LogSoftmax'),
         'caffe.ReLU': ty('ReLU'),
+        'caffe.PReLU': ty('PReLU'),
         'caffe.Reduction': reduction,
         'caffe.Slice': slice,
         'caffe.Softmax': softmax(opts),
