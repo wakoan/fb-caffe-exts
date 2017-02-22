@@ -1,5 +1,6 @@
 torch2caffe/*.pyc
 *.t7b
+*.t7
 *.caffemodel
 *.prototxt
 *.csv

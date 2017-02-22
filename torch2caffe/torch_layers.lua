@@ -276,9 +276,24 @@ M.CONVERTER = {
                           1,
                           false))
     end,
-    ['nn.SpatialBatchNormalization'] = simple{
-        typename='caffe.BatchNorm'--'caffe.BN'
-    },
+    ['nn.SpatialBatchNormalization'] = function(net, layer, bottom_edges, top_edges)
+        intermediate_edge = py.eval(
+            net.add_layer("caffe.BatchNorm",
+                          layer,
+                          bottom_edges,
+                          nil,
+                          1,
+                          1,
+                          false))
+        return py.eval(
+            net.add_layer("caffe.Scale",
+                          layer,
+                          intermediate_edge,
+                          top_edges,
+                          1,
+                          1,
+                          false))
+    end,
 }
 
 function M.add(net, layer, bottom_edges, top_edges)
