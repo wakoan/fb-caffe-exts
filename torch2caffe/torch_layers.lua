@@ -73,6 +73,9 @@ M.CONVERTER = {
         end},
     ['nn.Tanh'] = simple{typename='caffe.TanH', inplace=true},
     ['nn.ReLU'] = simple{typename='caffe.ReLU', inplace=true},
+    ['nn.PReLU'] = simple{typename='caffe.PReLU', inplace=true},
+    ['nn.SpatialDilatedConvolution'] = simple{typename='caffe.SpatialConvolution', inplace=true}, -- We don't have this operation
+    -- ['nn.SpatialFullConvolution'] = simple{typename='caffe.SpatialConvolution', inplace=true}, -- We don't have this operation
     ['nn.Threshold'] = simple{typename='caffe.FBThreshold', inplace=true},
     ['nn.Sequential'] = function(net, layer, bottom_edges, top_edges)
         for i = 1, #layer.modules do
