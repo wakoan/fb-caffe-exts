@@ -25,6 +25,7 @@ def to_caffe(layers, edges, opts):
     for layer in layers:
         caffe_layer = torch2caffe.caffe_layers.convert(
             opts, layer.typename, layer.torch_layer)
+
         caffe_layer.name = layer.name
         caffe_layer.bottom.extend([edges[i].name for i in layer.bottom_edges])
         caffe_layer.top.extend([edges[i].name for i in layer.top_edges])

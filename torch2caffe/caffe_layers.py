@@ -304,8 +304,16 @@ def batchnorm(torch_layer):
     # assert torch_layer["affine"]==0
     layer.batch_norm_param.use_global_stats = 1
     blobs_weight = np.ones(1)
-    layer.blobs.extend([as_blob(torch_layer["running_mean"]), 
+    layer.blobs.extend([as_blob(torch_layer["running_mean"]),
         as_blob(torch_layer["running_var"]), as_blob(blobs_weight)])
+    return layer
+
+
+def scale(torch_layer):
+    layer = pb2.LayerParameter()
+    layer.type = "Scale"
+    layer.scale_param.bias_term = 1
+    layer.blobs.extend([as_blob(torch_layer["weight"]), as_blob(torch_layer["bias"])])
     return layer
 
 
@@ -335,6 +343,7 @@ def build_converter(opts):
         'caffe.Eltwise': eltwise,
         'caffe.BN': bn,
         'caffe.BatchNorm': batchnorm,
+        'caffe.Scale': scale,
     }
 
 

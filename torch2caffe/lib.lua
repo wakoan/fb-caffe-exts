@@ -142,7 +142,8 @@ function M.compare(opts, torch_net)
             if os.getenv('LUA_DEBUG_ON_ERROR') then
                 require('fb.debugger').enter()
             end
-            if (max_absolute_error > 0.001) then  
+            print("Max absolute error = ", max_absolute_error)
+            if (max_absolute_error > 0.001) then
                 error("Error in conversion!")
             end
         end
